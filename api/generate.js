@@ -23,6 +23,7 @@ inputs: prompt
 )
 
 const data = await response.json()
+console.log(data)
 
 res.status(200).json({
 reply:data[0]?.generated_text || "No response"
@@ -37,4 +38,5 @@ reply:"AI error"
 }
 
 }
+
 
