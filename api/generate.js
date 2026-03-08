@@ -1,53 +1,44 @@
-export default async function handler(req,res){
+export default async function handler(req, res) {
 
-if(req.method !== "POST"){
-return res.status(405).json({error:"Method not allowed"})
-}
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" })
+  }
 
-try{
+  try {
 
-const {prompt} = req.body
+    const { prompt } = req.body
 
-const response = await fetch("https://api.openai.com/v1/chat/completions",{
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "user",
+            content: prompt
+          }
+        ]
+      })
+    })
 
-method:"POST",
+    const data = await response.json()
 
-headers:{
-"Content-Type":"application/json",
-"Authorization":`Bearer ${process.env.OPENAI_API_KEY}`
-},
+    console.log(data)
 
-body:JSON.stringify({
+    const reply = data?.choices?.[0]?.message?.content || "No response from AI"
 
-model:"gpt-4o-mini",
+    res.status(200).json({ reply })
 
-messages:[
-{
-role:"system",
-content:"You are a helpful assistant."
-},
-{
-role:"user",
-content:prompt
-}
-]
+  } catch (error) {
 
-})
+    res.status(500).json({
+      reply: "AI error occurred"
+    })
 
-})
-
-const data = await response.json()
-
-res.status(200).json({
-reply:data.choices[0].message.content
-})
-
-}catch(err){
-
-res.status(500).json({
-error:"AI request failed"
-})
-
-}
+  }
 
 }
