@@ -1,45 +1,40 @@
 export default async function handler(req, res) {
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ reply: "Method not allowed" })
-  }
+if(req.method !== "POST"){
+return res.status(405).json({reply:"Method not allowed"})
+}
 
-  try {
+try{
 
-    const { prompt } = req.body
+const {prompt} = req.body
 
-    const response = await fetch(
-      "https://api-inference.huggingface.co/models/google/flan-t5-base",
-      {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${process.env.HF_API_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          inputs: prompt
-        })
-      }
-    )
+const response = await fetch(
+"https://api.groq.com/openai/v1/chat/completions",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization":`Bearer ${process.env.GROQ_API_KEY}`
+},
+body:JSON.stringify({
+model:"llama3-8b-8192",
+messages:[
+{role:"user",content:prompt}
+]
+})
+}
+)
 
-    const data = await response.json()
+const data = await response.json()
 
-    console.log(data)
+let reply = data?.choices?.[0]?.message?.content || "No response"
 
-    let reply = "No response"
+res.status(200).json({reply})
 
-    if (Array.isArray(data)) {
-      reply = data[0]?.generated_text || "No text generated"
-    }
+}catch(err){
 
-    res.status(200).json({ reply })
+res.status(500).json({reply:"Server error"})
 
-  } catch (error) {
-
-    res.status(500).json({
-      reply: "Server error"
-    })
-
-  }
+}
 
 }
