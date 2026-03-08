@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AI Tool</title>
+</head>
+
+<body>
+
+<h1>AI Generator</h1>
+
+<textarea id="prompt"></textarea>
+<button onclick="askAI()">Generate</button>
+
+<div id="response"></div>
+
+<script>
+
+async function askAI(){
+
+let prompt = document.getElementById("prompt").value
+
+let res = await fetch("/api/generate",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({prompt})
+})
+
+let data = await res.json()
+
+document.getElementById("response").innerText = data.reply
+
+}
+
+</script>
+
+</body>
+</html>
